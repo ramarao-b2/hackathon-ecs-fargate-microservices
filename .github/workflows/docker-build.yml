@@ -24,14 +24,14 @@ jobs:
             ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
 
       - run: |
-          docker build -t patient ./services/patient-service
+          docker build -t patient ./app/patient-service
           docker tag patient \
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/patient-service:latest
           docker push \
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/patient-service:latest
 
       - run: |
-          docker build -t appointment ./services/appointment-service
+          docker build -t appointment ./app/appointment-service
           docker tag appointment \
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/appointment-service:latest
           docker push \
