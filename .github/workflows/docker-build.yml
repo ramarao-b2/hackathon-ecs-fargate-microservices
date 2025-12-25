@@ -1,0 +1,45 @@
+name: docker build push
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          aws configure set aws_access_key_id "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          aws configure set aws_secret_access_key "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          aws configure set default.region "ap-south-1"
+
+      - run: |
+          aws ecr get-login-password --region ap-south-1 |
+          docker login \
+            --username AWS \
+            --password-stdin \
+            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+
+      - run: |
+          docker build -t patient ./services/patient-service
+          docker tag patient \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/patient-service:latest
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/patient-service:latest
+
+      - run: |
+          docker build -t appointment ./services/appointment-service
+          docker tag appointment \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/appointment-service:latest
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/appointment-service:latest
+
+      #- run: echo ${{ github.sha }} > tag.txt
+
+      #- uses: actions/upload-artifact@v4
+       # with:
+        #  name: tags
+         # path: tag.txt
